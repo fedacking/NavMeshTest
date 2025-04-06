@@ -1,6 +1,6 @@
 use macroquad::math::Vec2;
-
 use std::hash::{Hash, Hasher};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Edge(pub Vec2, pub Vec2);
 
