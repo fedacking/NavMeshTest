@@ -4,6 +4,15 @@ use macroquad::math::Vec2;
 #[derive(Debug, Clone, Copy)]
 pub struct Edge (pub Vec2, pub Vec2);
 
+impl Edge {
+    pub fn new(v1: Vec2, v2: Vec2) -> Edge {
+        if v1.x < v2.x || (v1.x == v2.x && v1.y < v2.y) {
+            return Edge(v1, v2);
+        }
+        Edge(v1, v2)
+    }
+}
+
 impl PartialEq for Edge {
     fn eq(&self, other: &Self) -> bool {
         (self.0 == other.0 && self.1 == other.1) || (self.0 == other.1 && self.1 == other.0)

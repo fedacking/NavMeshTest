@@ -42,9 +42,9 @@ impl DelaunayTriangulation {
             let mut polygon = HashSet::new();
             for triangle in &bad_triangles {
                 let edges = vec![
-                    Edge(triangle.coordinates[0], triangle.coordinates[1]),
-                    Edge(triangle.coordinates[1], triangle.coordinates[2]),
-                    Edge(triangle.coordinates[2], triangle.coordinates[0]),
+                    Edge::new(triangle.coordinates[0], triangle.coordinates[1]),
+                    Edge::new(triangle.coordinates[1], triangle.coordinates[2]),
+                    Edge::new(triangle.coordinates[2], triangle.coordinates[0]),
                 ];
 
                 for edge in edges {
