@@ -79,21 +79,23 @@ pub fn point_in_triangle(point: Vec2, nav_triangle: &NavTriangle) -> bool {
     u >= 0.0 && v >= 0.0 && w >= 0.0
 }
 
-pub fn point_in_circumcircle(point: Vec2, triangle: &NavTriangle) -> bool {
-    let [a, b, c] = triangle.coordinates;
+impl NavTriangle {
+    pub fn point_in_circumcircle(&self, point: Vec2) -> bool {
+        let [a, b, c] = self.coordinates;
 
-    let ax = a.x - point.x;
-    let ay = a.y - point.y;
-    let bx = b.x - point.x;
-    let by = b.y - point.y;
-    let cx = c.x - point.x;
-    let cy = c.y - point.y;
+        let ax = a.x - point.x;
+        let ay = a.y - point.y;
+        let bx = b.x - point.x;
+        let by = b.y - point.y;
+        let cx = c.x - point.x;
+        let cy = c.y - point.y;
 
-    let det = (ax * ax + ay * ay) * (bx * cy - by * cx)
-        - (bx * bx + by * by) * (ax * cy - ay * cx)
-        + (cx * cx + cy * cy) * (ax * by - ay * bx);
+        let det = (ax * ax + ay * ay) * (bx * cy - by * cx)
+            - (bx * bx + by * by) * (ax * cy - ay * cx)
+            + (cx * cx + cy * cy) * (ax * by - ay * bx);
 
-    det < 0.0
+        det < 0.0
+    }
 }
 
 pub fn triangle_share_point(a: &NavTriangle, b: &NavTriangle) -> bool {

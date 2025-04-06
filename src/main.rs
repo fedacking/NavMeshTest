@@ -6,7 +6,7 @@ use std::fs::File;
 use std::hash::{Hash, Hasher};
 use std::io::{self, BufRead};
 use std::path::Path;
-use crate::shape_math::{point_in_circumcircle, triangle_share_point, Edge, NavTriangle};
+use crate::shape_math::{triangle_share_point, Edge, NavTriangle};
 
 const INTERFACE_MULT: f32 = 10.0;
 const INTERFACE_OFFSET: f32 = 0.0;
@@ -34,7 +34,7 @@ impl DelaunayTriangulation {
             let mut bad_triangles = Vec::new();
 
             for triangle in &self.triangles {
-                if point_in_circumcircle(*point, &triangle) {
+                if triangle.point_in_circumcircle(*point) {
                     bad_triangles.push(*triangle);
                 }
             }
