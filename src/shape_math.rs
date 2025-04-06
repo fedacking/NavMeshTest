@@ -96,12 +96,10 @@ impl NavTriangle {
 
         det < 0.0
     }
+
+    pub fn triangle_share_point(self, other: &NavTriangle) -> bool {
+        self.coordinates[0] == other.coordinates[0] || self.coordinates[0] == other.coordinates[1] || self.coordinates[0] == other.coordinates[2] ||
+            self.coordinates[1] == other.coordinates[0] || self.coordinates[1] == other.coordinates[1] || self.coordinates[1] == other.coordinates[2] ||
+            self.coordinates[2] == other.coordinates[0] || self.coordinates[2] == other.coordinates[1] || self.coordinates[2] == other.coordinates[2]
+    }
 }
-
-pub fn triangle_share_point(a: &NavTriangle, b: &NavTriangle) -> bool {
-    a.coordinates[0] == b.coordinates[0] || a.coordinates[0] == b.coordinates[1] || a.coordinates[0] == b.coordinates[2] ||
-        a.coordinates[1] == b.coordinates[0] || a.coordinates[1] == b.coordinates[1] || a.coordinates[1] == b.coordinates[2] ||
-        a.coordinates[2] == b.coordinates[0] || a.coordinates[2] == b.coordinates[1] || a.coordinates[2] == b.coordinates[2]
-}
-
-

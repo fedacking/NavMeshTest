@@ -6,7 +6,7 @@ use std::fs::File;
 use std::hash::{Hash, Hasher};
 use std::io::{self, BufRead};
 use std::path::Path;
-use crate::shape_math::{triangle_share_point, Edge, NavTriangle};
+use crate::shape_math::{Edge, NavTriangle};
 
 const INTERFACE_MULT: f32 = 10.0;
 const INTERFACE_OFFSET: f32 = 0.0;
@@ -61,7 +61,7 @@ impl DelaunayTriangulation {
             }
         }
 
-        self.triangles.retain(|t| !triangle_share_point(t, &bounding_triangle));
+        self.triangles.retain(|t| !t.triangle_share_point(&bounding_triangle));
     }
 }
 
