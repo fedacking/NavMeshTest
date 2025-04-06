@@ -127,9 +127,9 @@ impl Map {
         let mut triangulation = DelaunayTriangulation::new();
         triangulation.triangulate(&combined_points);
         let mut triangles = triangulation.triangles;
-        // triangles.retain(|t| {
-        //     !check_triangle_in_polygons(t, &non_passable_polygons)
-        // });
+        triangles.retain(|t| {
+             !check_triangle_in_polygons(t, &non_passable_polygons)
+        });
         Map {
             triangles,
             non_passable_polygons,
@@ -181,38 +181,6 @@ fn read_file(filename: &str) -> io::Result<Vec<Vec<Vec2>>> {
     }
     Ok(vec)
 }
-
-/* // Test code for point in triangle performance
-#[macroquad::main("Navmesh Visualizer")]
-async fn main() {
-    let vec = read_file("test_input/test1.fnav").unwrap();
-    println!("{:?}", vec);
-    let width = macroquad::window::screen_width() / u32::MAX as f32;
-    let height = macroquad::window::screen_height() / u32::MAX as f32;
-    println!("{}, {}", screen_width(), screen_height());
-    let nav_triangle = NavTriangle{ coordinates: [
-        Vec2{ x: 100.0, y: 50.0 }, Vec2{ x:50.0, y:200.0}, Vec2{ x:200.0, y: 250.0 }
-    ]};
-    loop {
-        clear_background(BLACK);
-        draw_text("IT WORKS!", 20.0, 20.0, 30.0, WHITE);
-        for i in 0..1000 {
-            draw_nav_triangle(&nav_triangle);
-            let x = rand::rand() as f32 * width;
-            let y = rand::rand() as f32 * height;
-            let point = Vec2{ x, y };
-            if point_in_triangle(point, &nav_triangle) {
-                draw_rectangle(point.x, point.y, 2.0, 2.0, BLUE);
-            } else if point_in_circumcircle(point, &nav_triangle) {
-                draw_rectangle(point.x, point.y, 2.0, 2.0, GREEN);
-            } else {
-                draw_rectangle(point.x, point.y, 2.0, 2.0, RED);
-            }
-        }
-        next_frame().await
-    }
-}
- */
 
 #[macroquad::main("Navmesh Visualizer")]
 async fn main() {
