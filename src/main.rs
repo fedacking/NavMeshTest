@@ -1,12 +1,12 @@
 mod shape_math;
 
-use std::collections::HashSet;
+use crate::shape_math::{Edge, NavTriangle};
 use macroquad::prelude::*;
+use std::collections::HashSet;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
 use std::io::{self, BufRead};
 use std::path::Path;
-use crate::shape_math::{Edge, NavTriangle};
 
 const INTERFACE_MULT: f32 = 10.0;
 const INTERFACE_OFFSET: f32 = 0.0;
@@ -18,14 +18,25 @@ struct DelaunayTriangulation {
 
 impl DelaunayTriangulation {
     fn new() -> Self {
-        Self { triangles: Vec::new() }
+        Self {
+            triangles: Vec::new(),
+        }
     }
 
     fn triangulate(&mut self, points: &Vec<Vec2>) {
         let bounding_triangle = NavTriangle::from_coordinates([
-            Vec2{ x: -10000.0, y: 10000.0 }, //TODO: make it so that it creates a triangle based on the points
-            Vec2{ x: 10000.0 , y: 10000.0 },
-            Vec2{ x: 0.0, y: -10000.0 },
+            Vec2 {
+                x: -10000.0,
+                y: 10000.0,
+            }, //TODO: make it so that it creates a triangle based on the points
+            Vec2 {
+                x: 10000.0,
+                y: 10000.0,
+            },
+            Vec2 {
+                x: 0.0,
+                y: -10000.0,
+            },
         ]);
 
         self.triangles.push(bounding_triangle);
@@ -57,14 +68,15 @@ impl DelaunayTriangulation {
             self.triangles.retain(|t| !bad_triangles.contains(t));
 
             for edge in polygon {
-                self.triangles.push(NavTriangle::from_coordinates([edge.0, edge.1, *point]));
+                self.triangles
+                    .push(NavTriangle::from_coordinates([edge.0, edge.1, *point]));
             }
         }
 
-        self.triangles.retain(|t| !t.triangle_share_point(&bounding_triangle));
+        self.triangles
+            .retain(|t| !t.triangle_share_point(&bounding_triangle));
     }
 }
-
 
 #[derive(Debug, Clone)]
 struct Map {
@@ -74,7 +86,10 @@ struct Map {
 
 fn check_triangle_in_polygons(t: &NavTriangle, polygons: &Vec<Vec<Vec2>>) -> bool {
     for polygon in polygons {
-        if polygon.contains(&t.coordinates[0]) && polygon.contains(&t.coordinates[1]) && polygon.contains(&t.coordinates[2]) {
+        if polygon.contains(&t.coordinates[0])
+            && polygon.contains(&t.coordinates[1])
+            && polygon.contains(&t.coordinates[2])
+        {
             return true;
         }
     }
@@ -83,28 +98,42 @@ fn check_triangle_in_polygons(t: &NavTriangle, polygons: &Vec<Vec<Vec2>>) -> boo
 
 impl Map {
     pub fn from_npp(non_passable_polygons: Vec<Vec<Vec2>>) -> Self {
-        let mut combined_points: Vec<Vec2> = non_passable_polygons.clone().into_iter().flatten().collect();
-        combined_points.push(Vec2{ x: 0.0, y: 60.0 });
-        combined_points.push(Vec2{ x: 1000.0, y: 60.0 });
-        combined_points.push(Vec2{ x: 0.0, y: 1000.0 });
-        combined_points.push(Vec2{ x: 1000.0, y: 1000.0 });
+        let mut combined_points: Vec<Vec2> = non_passable_polygons
+            .clone()
+            .into_iter()
+            .flatten()
+            .collect();
+        combined_points.push(Vec2 { x: 0.0, y: 60.0 });
+        combined_points.push(Vec2 { x: 1000.0, y: 60.0 });
+        combined_points.push(Vec2 { x: 0.0, y: 1000.0 });
+        combined_points.push(Vec2 {
+            x: 1000.0,
+            y: 1000.0,
+        });
         let mut triangulation = DelaunayTriangulation::new();
         triangulation.triangulate(&combined_points);
         let mut triangles = triangulation.triangles;
-        triangles.retain(|t| {
-            !check_triangle_in_polygons(t, &non_passable_polygons)
-        });
-        Map{triangles, non_passable_polygons}
+        triangles.retain(|t| !check_triangle_in_polygons(t, &non_passable_polygons));
+        Map {
+            triangles,
+            non_passable_polygons,
+        }
     }
 }
 
-
-
-
 fn draw_nav_triangle(nav_triangle: &NavTriangle) {
-    let v1 = Vec2{ x: nav_triangle.coordinates[0][0], y: nav_triangle.coordinates[0][1]};
-    let v2 = Vec2{ x: nav_triangle.coordinates[1][0], y: nav_triangle.coordinates[1][1]};
-    let v3 = Vec2{ x: nav_triangle.coordinates[2][0], y: nav_triangle.coordinates[2][1]};
+    let v1 = Vec2 {
+        x: nav_triangle.coordinates[0][0],
+        y: nav_triangle.coordinates[0][1],
+    };
+    let v2 = Vec2 {
+        x: nav_triangle.coordinates[1][0],
+        y: nav_triangle.coordinates[1][1],
+    };
+    let v3 = Vec2 {
+        x: nav_triangle.coordinates[2][0],
+        y: nav_triangle.coordinates[2][1],
+    };
     draw_line(v1.x, v1.y, v2.x, v2.y, 2.0, BLACK);
     draw_line(v1.x, v1.y, v3.x, v3.y, 2.0, BLACK);
     draw_line(v3.x, v3.y, v2.x, v2.y, 2.0, BLACK);
@@ -125,8 +154,10 @@ fn read_file(filename: &str) -> io::Result<Vec<Vec<Vec2>>> {
         for segment in segments {
             let coordinates: Vec<&str> = segment.split(';').collect();
             if coordinates.len() == 2 {
-                let x: f32 = coordinates[0].parse().unwrap_or(0.0) * INTERFACE_MULT + INTERFACE_OFFSET;
-                let y: f32 = coordinates[1].parse().unwrap_or(0.0) * INTERFACE_MULT + INTERFACE_OFFSET;
+                let x: f32 =
+                    coordinates[0].parse().unwrap_or(0.0) * INTERFACE_MULT + INTERFACE_OFFSET;
+                let y: f32 =
+                    coordinates[1].parse().unwrap_or(0.0) * INTERFACE_MULT + INTERFACE_OFFSET;
                 points.push(Vec2 { x, y });
             }
         }
@@ -134,7 +165,6 @@ fn read_file(filename: &str) -> io::Result<Vec<Vec<Vec2>>> {
     }
     Ok(vec)
 }
-
 
 #[macroquad::main("Navmesh Visualizer")]
 async fn main() {

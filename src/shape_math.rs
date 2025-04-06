@@ -1,8 +1,8 @@
-use std::hash::{Hash, Hasher};
 use macroquad::math::Vec2;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone, Copy)]
-pub struct Edge (pub Vec2, pub Vec2);
+pub struct Edge(pub Vec2, pub Vec2);
 
 impl Edge {
     pub fn new(v1: Vec2, v2: Vec2) -> Edge {
@@ -19,9 +19,7 @@ impl PartialEq for Edge {
     }
 }
 
-impl Eq for Edge {
-
-}
+impl Eq for Edge {}
 
 impl Hash for Edge {
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -34,14 +32,14 @@ impl Hash for Edge {
 
 #[derive(Debug, Clone, Copy)]
 pub struct NavTriangle {
-    pub coordinates: [Vec2; 3]
+    pub coordinates: [Vec2; 3],
 }
 
 impl NavTriangle {
     pub fn from_coordinates(mut coordinates: [Vec2; 3]) -> NavTriangle {
-        let det = coordinates[0].x * (coordinates[1].y - coordinates[2].y) +
-            coordinates[1].x * (coordinates[2].y - coordinates[0].y) +
-            coordinates[2].x * (coordinates[0].y - coordinates[1].y);
+        let det = coordinates[0].x * (coordinates[1].y - coordinates[2].y)
+            + coordinates[1].x * (coordinates[2].y - coordinates[0].y)
+            + coordinates[2].x * (coordinates[0].y - coordinates[1].y);
         if det > 0.0 {
             (coordinates[1], coordinates[0]) = (coordinates[0], coordinates[1]);
         }
@@ -49,13 +47,13 @@ impl NavTriangle {
     }
 }
 
-
 impl PartialEq for NavTriangle {
     fn eq(&self, other: &Self) -> bool {
-        let a = &self.coordinates; let b = other.coordinates;
-        (a[0] == b[0] && a[1] == b[1] && a[2] == b[2]) ||
-            (a[0] == b[1] && a[1] == b[2] && a[2] == b[0]) ||
-            (a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
+        let a = &self.coordinates;
+        let b = other.coordinates;
+        (a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
+            || (a[0] == b[1] && a[1] == b[2] && a[2] == b[0])
+            || (a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
     }
 }
 pub fn point_in_triangle(point: Vec2, nav_triangle: &NavTriangle) -> bool {
@@ -100,8 +98,14 @@ impl NavTriangle {
     }
 
     pub fn triangle_share_point(self, other: &NavTriangle) -> bool {
-        self.coordinates[0] == other.coordinates[0] || self.coordinates[0] == other.coordinates[1] || self.coordinates[0] == other.coordinates[2] ||
-            self.coordinates[1] == other.coordinates[0] || self.coordinates[1] == other.coordinates[1] || self.coordinates[1] == other.coordinates[2] ||
-            self.coordinates[2] == other.coordinates[0] || self.coordinates[2] == other.coordinates[1] || self.coordinates[2] == other.coordinates[2]
+        self.coordinates[0] == other.coordinates[0]
+            || self.coordinates[0] == other.coordinates[1]
+            || self.coordinates[0] == other.coordinates[2]
+            || self.coordinates[1] == other.coordinates[0]
+            || self.coordinates[1] == other.coordinates[1]
+            || self.coordinates[1] == other.coordinates[2]
+            || self.coordinates[2] == other.coordinates[0]
+            || self.coordinates[2] == other.coordinates[1]
+            || self.coordinates[2] == other.coordinates[2]
     }
 }
