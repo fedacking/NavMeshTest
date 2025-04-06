@@ -65,7 +65,6 @@ impl Edge {
                     LineIntersection::SinglePoint{ intersection, is_proper} => {
                         if is_proper {
                             vec.push(Point{x: intersection.x, y: intersection.y});
-                            print!("{self:?}-{other:?}:{intersection:?}\t")
                         }
                     },
                     _ => {}

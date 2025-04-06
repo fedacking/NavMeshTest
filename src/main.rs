@@ -106,7 +106,6 @@ impl Map {
                     }
                 }
             }
-            println!("");
             let mut triangulation = triangulate(&*combined_points);
             triangles = indexes_to_triangles(&combined_points, &triangulation.triangles);
             hash_edges = indexes_to_edges(&combined_points, &triangulation.triangles);
@@ -131,7 +130,7 @@ impl Map {
         // }
         // triangles = triangulation.triangles.clone();
 
-        //triangles.retain(|t| !check_triangle_in_polygons(t, &non_passable_polygons));
+        triangles.retain(|t| !check_triangle_in_polygons(t, &clone_polygons));
         Map {
             triangles,
             non_passable_polygons: clone_polygons,
@@ -165,6 +164,71 @@ fn draw_nav_triangle(nav_triangle: &NavTriangle) {
     draw_line(v1.x, v1.y, v3.x, v3.y, 2.0, BLACK);
     draw_line(v3.x, v3.y, v2.x, v2.y, 2.0, BLACK);
     draw_triangle(v1, v2, v3, GREEN);
+
+}
+
+pub fn draw_graph(nav_triangles: &Vec<NavTriangle>){
+    for nav_triangle in nav_triangles {
+        let v1 = Vec2 {
+            x: nav_triangle.coordinates[0].x as f32,
+            y: nav_triangle.coordinates[0].y as f32,
+        };
+        let v2 = Vec2 {
+            x: nav_triangle.coordinates[1].x as f32,
+            y: nav_triangle.coordinates[1].y as f32,
+        };
+        let v3 = Vec2 {
+            x: nav_triangle.coordinates[2].x as f32,
+            y: nav_triangle.coordinates[2].y as f32,
+        };
+        let center = Vec2{
+            x: (v1.x + v2.x + v3.x) / 3.0,
+            y: (v1.y + v2.y + v3.y) / 3.0,
+        };
+        draw_circle(center.x, center.y, 4.0, BLUE);
+        for other_triangle in nav_triangles {
+            if other_triangle == nav_triangle { continue }
+            if check_edge_in_triangle(v1, v2, other_triangle) ||
+                check_edge_in_triangle(v2, v3, other_triangle) ||
+                check_edge_in_triangle(v3, v1, other_triangle) {
+                let o1 = Vec2 {
+                    x: other_triangle.coordinates[0].x as f32,
+                    y: other_triangle.coordinates[0].y as f32,
+                };
+                let o2 = Vec2 {
+                    x: other_triangle.coordinates[1].x as f32,
+                    y: other_triangle.coordinates[1].y as f32,
+                };
+                let o3 = Vec2 {
+                    x: other_triangle.coordinates[2].x as f32,
+                    y: other_triangle.coordinates[2].y as f32,
+                };
+                let o_center = Vec2{
+                    x: (o1.x + o2.x + o3.x) / 3.0,
+                    y: (o1.y + o2.y + o3.y) / 3.0,
+                };
+
+                draw_line(center.x, center.y, o_center.x, o_center.y, 2.0, BLUE);
+            }
+        }
+    }
+}
+
+fn check_edge_in_triangle(o1: Vec2, o2: Vec2, nav_triangle: &NavTriangle) -> bool {
+    let v1 = Vec2 {
+        x: nav_triangle.coordinates[0].x as f32,
+        y: nav_triangle.coordinates[0].y as f32,
+    };
+    let v2 = Vec2 {
+        x: nav_triangle.coordinates[1].x as f32,
+        y: nav_triangle.coordinates[1].y as f32,
+    };
+    let v3 = Vec2 {
+        x: nav_triangle.coordinates[2].x as f32,
+        y: nav_triangle.coordinates[2].y as f32,
+    };
+
+    (o1 == v1 || o1 == v2 || o1 == v3) && (o2 == v1 || o2 == v2 || o2 == v3)
 }
 
 fn read_file(filename: &str) -> io::Result<Vec<Vec<Point>>> {
@@ -204,6 +268,7 @@ async fn main() {
         for triangle in &mesh.triangles {
             draw_nav_triangle(triangle);
         }
+        draw_graph(&mesh.triangles);
         next_frame().await
     }
 }
