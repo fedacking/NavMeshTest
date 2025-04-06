@@ -2,7 +2,7 @@ use macroquad::math::Vec2;
 
 use std::hash::{Hash, Hasher};
 #[derive(Debug, Clone, Copy)]
-pub struct Edge(pub(crate) Vec2, pub(crate) Vec2);
+pub struct Edge(pub Vec2, pub Vec2);
 
 impl Edge {
     pub fn new(v1: Vec2, v2: Vec2) -> Edge {
@@ -32,7 +32,7 @@ impl Hash for Edge {
 
 #[derive(Debug, Clone, Copy)]
 pub struct NavTriangle {
-    pub(crate) coordinates: [Vec2; 3],
+    pub coordinates: [Vec2; 3],
 }
 
 impl NavTriangle {
