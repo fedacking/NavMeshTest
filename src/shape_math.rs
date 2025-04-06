@@ -25,17 +25,10 @@ impl Eq for Edge {
 
 impl Hash for Edge {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        if self.0.x < self.1.x {
-            state.write_u32(self.0.x.to_bits());
-            state.write_u32(self.0.y.to_bits());
-            state.write_u32(self.1.x.to_bits());
-            state.write_u32(self.1.y.to_bits());
-        } else {
-            state.write_u32(self.1.x.to_bits());
-            state.write_u32(self.1.y.to_bits());
-            state.write_u32(self.0.x.to_bits());
-            state.write_u32(self.0.y.to_bits());
-        }
+        state.write_u32(self.0.x.to_bits());
+        state.write_u32(self.0.y.to_bits());
+        state.write_u32(self.1.x.to_bits());
+        state.write_u32(self.1.y.to_bits());
     }
 }
 
