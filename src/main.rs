@@ -141,50 +141,6 @@ impl DelaunayTriangulation {
     }
 }
 
-/*
-fn triangulate(points: Vec<Vec2>) -> Vec<NavTriangle> {
-    let bounding_triangle = NavTriangle{ coordinates: [
-        Vec2{ x: f32::MIN, y: f32::MAX },
-        Vec2{ x: f32::MAX, y: f32::MAX },
-        Vec2{ x: 0.0, y: f32::MIN },
-    ]};
-    let mut all_triangles: Vec<&NavTriangle> = vec![&bounding_triangle];
-
-    for point in points {
-        let mut bounding_triangles: Vec<&NavTriangle> = vec![];
-        for triangle in &all_triangles {
-            if point_in_circumcircle(point, &triangle) {
-                bounding_triangles.push(&triangle);
-            }
-        }
-
-        let mut polygon = HashSet::new();
-        for triangle in &bounding_triangles {
-            let edges = vec![
-                Edge(triangle.coordinates[0], triangle.coordinates[1]),
-                Edge(triangle.coordinates[1], triangle.coordinates[2]),
-                Edge(triangle.coordinates[2], triangle.coordinates[0])
-            ];
-
-            for edge in edges {
-                if !polygon.insert(edge) {
-                    polygon.remove(&edge);
-                }
-            }
-        }
-
-        all_triangles.retain(|t| bounding_triangles.contains(&t));
-
-        for edge in polygon {
-            all_triangles.push(&NavTriangle{ coordinates:[point, edge.0, edge.1]})
-        }
-    }
-
-    all_triangles.iter().map(|t| (**t).clone()).collect()
-}
-*/
-
-
 
 #[derive(Debug, Clone)]
 struct Map {
