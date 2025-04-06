@@ -46,7 +46,7 @@ impl DelaunayTriangulation {
             let mut bad_triangles = Vec::new();
 
             for triangle in &self.triangles {
-                if triangle.point_in_triangle(*point) {
+                if triangle.point_in_circumcircle(*point) {
                     bad_triangles.push(*triangle);
                 }
             }
