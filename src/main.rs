@@ -110,8 +110,6 @@ impl DelaunayTriangulation {
             for triangle in &self.triangles {
                 if point_in_circumcircle(*point, &triangle) {
                     bad_triangles.push(*triangle);
-                } else {
-                    println!("Bad triangle: {:?}", triangle);
                 }
             }
 
