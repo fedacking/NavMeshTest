@@ -1,9 +1,12 @@
+mod shape_math;
+
 use std::collections::HashSet;
 use macroquad::prelude::*;
 use std::fs::File;
 use std::hash::{Hash, Hasher};
 use std::io::{self, BufRead};
 use std::path::Path;
+use crate::shape_math::Edge;
 
 const INTERFACE_MULT: f32 = 10.0;
 const INTERFACE_OFFSET: f32 = 0.0;
@@ -34,36 +37,6 @@ impl PartialEq for NavTriangle {
         (a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
     }
 }
-
-#[derive(Debug, Clone, Copy)]
-struct Edge (Vec2, Vec2);
-
-impl PartialEq for Edge {
-    fn eq(&self, other: &Self) -> bool {
-        (self.0 == other.0 && self.1 == other.1) || (self.0 == other.1 && self.1 == other.0)
-    }
-}
-
-impl Eq for Edge {
-
-}
-
-impl Hash for Edge {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        if self.0.x < self.1.x {
-            state.write_u32(self.0.x.to_bits());
-            state.write_u32(self.0.y.to_bits());
-            state.write_u32(self.1.x.to_bits());
-            state.write_u32(self.1.y.to_bits());
-        } else {
-            state.write_u32(self.1.x.to_bits());
-            state.write_u32(self.1.y.to_bits());
-            state.write_u32(self.0.x.to_bits());
-            state.write_u32(self.0.y.to_bits());
-        }
-    }
-}
-
 fn point_in_triangle(point: Vec2, nav_triangle: &NavTriangle) -> bool {
     let v0 = nav_triangle.coordinates[1] - nav_triangle.coordinates[0];
     let v1 = nav_triangle.coordinates[2] - nav_triangle.coordinates[0];
