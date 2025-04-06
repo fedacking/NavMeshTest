@@ -52,16 +52,16 @@ fn indexes_to_edges(points: &Vec<Point>, triangles: &Vec<usize>) -> HashSet<Edge
     let mut result = HashSet::new();
     while index + 2 < triangles.len() {
         result.insert(Edge::new(
-            points[triangles[index]].clone().into(),
-            points[triangles[index +1]].clone().into(),
+            points[triangles[index]].clone(),
+            points[triangles[index + 1]].clone(),
         ));
         result.insert(Edge::new(
-            points[triangles[index]].clone().into(),
-            points[triangles[index +2]].clone().into(),
+            points[triangles[index]].clone(),
+            points[triangles[index + 2]].clone(),
         ));
         result.insert(Edge::new(
-            points[triangles[index+1]].clone().into(),
-            points[triangles[index +2]].clone().into(),
+            points[triangles[index + 1]].clone(),
+            points[triangles[index + 2]].clone(),
         ));
         index += 3;
     }
@@ -98,12 +98,15 @@ impl Map {
                     let edge = Edge::new(point.clone(), (&polygon[other_index]).clone());
                     let extra_points = edge.get_intersection_points(&hash_edges);
                     for (offset, extra_point) in extra_points.iter().enumerate() {
-                        clone_polygons[polygon_index].insert(other_index + offset, extra_point.clone());
-                        combined_points.push(extra_point.clone());
-                        flag = true;
+                        if not_too_close(extra_point, &combined_points) {
+                            clone_polygons[polygon_index].insert(other_index + offset, extra_point.clone());
+                            combined_points.push(extra_point.clone());
+                            flag = true;
+                        }
                     }
                 }
             }
+            println!("");
             let mut triangulation = triangulate(&*combined_points);
             triangles = indexes_to_triangles(&combined_points, &triangulation.triangles);
             hash_edges = indexes_to_edges(&combined_points, &triangulation.triangles);
@@ -134,6 +137,15 @@ impl Map {
             non_passable_polygons: clone_polygons,
         }
     }
+}
+
+fn not_too_close(point: &Point, points: &Vec<Point>) -> bool {
+    for other in points {
+        if f64::abs(other.x - point.x).abs() < 0.01 && f64::abs(other.y - point.y).abs() < 0.01 {
+            return false;
+        }
+    }
+    true
 }
 
 fn draw_nav_triangle(nav_triangle: &NavTriangle) {

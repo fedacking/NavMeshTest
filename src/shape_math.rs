@@ -40,7 +40,10 @@ impl Edge {
     pub fn get_intersection_points(&self, others: &HashSet<Edge>) -> Vec<Point> {
         let mut vec = vec![];
         for other in others {
-            if other.0 == self.0 || other.1 == self.0 || other.0 == self.1 || other.1 == self.1 {
+            if (f64::abs(other.0.x - self.0.x) < 0.01 && f64::abs(other.0.y - self.0.y) < 0.01) ||
+                (f64::abs(other.1.x - self.0.x) < 0.01 && f64::abs(other.1.y - self.0.y) < 0.01) ||
+                (f64::abs(other.0.x - self.1.x) < 0.01 && f64::abs(other.0.y - self.1.y) < 0.01) ||
+                (f64::abs(other.1.x - self.1.x) < 0.01 && f64::abs(other.1.y - self.1.y) < 0.01){
                 continue;
             }
 
@@ -62,6 +65,7 @@ impl Edge {
                     LineIntersection::SinglePoint{ intersection, is_proper} => {
                         if is_proper {
                             vec.push(Point{x: intersection.x, y: intersection.y});
+                            print!("{self:?}-{other:?}:{intersection:?}\t")
                         }
                     },
                     _ => {}
