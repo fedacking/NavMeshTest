@@ -9,7 +9,7 @@ impl Edge {
         if v1.x < v2.x || (v1.x == v2.x && v1.y < v2.y) {
             return Edge(v1, v2);
         }
-        Edge(v1, v2)
+        Edge(v2, v1)
     }
 }
 
@@ -27,6 +27,40 @@ impl Hash for Edge {
         state.write_u32(self.0.y.to_bits());
         state.write_u32(self.1.x.to_bits());
         state.write_u32(self.1.y.to_bits());
+    }
+}
+
+impl Edge {
+    fn on_segment(&self, point: Vec2) -> bool {
+         (self.1.x > point.x) && (point.x > self.0.x) &&
+        ((self.1.y > point.y) && (point.y > self.0.y) ||
+         (self.1.y < point.y) && (point.y < self.0.y))
+    }
+
+    pub fn get_intersection_point(&self, other: &Edge) -> Option<Vec2> {
+        let a1 = self.1.y - self.0.y;
+        let b1 = self.0.x - self.1.x;
+        let c1 = a1 * self.1.x + b1 * self.1.y;
+
+        let a2 = other.1.y - other.0.y;
+        let b2 = other.0.x - other.1.x;
+        let c2 = a2 * other.0.x + b2 * other.0.y;
+
+        let determinant = a1 * b2 - a2 * b1;
+
+        if determinant.abs() < f32::EPSILON {
+            return None;
+        }
+
+        let x = (b2 * c1 - b1 * c2) / determinant;
+        let y = (a1 * c2 - a2 * c1) / determinant;
+
+        let point = Vec2::new(x, y);
+        if self.on_segment(point) && other.on_segment(point) {
+            Some(point)
+        } else {
+            None
+        }
     }
 }
 

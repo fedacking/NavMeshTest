@@ -11,19 +11,23 @@ use std::path::Path;
 const INTERFACE_MULT: f32 = 10.0;
 const INTERFACE_OFFSET: f32 = 0.0;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct DelaunayTriangulation {
     triangles: Vec<NavTriangle>,
+    edges: HashSet<Edge>,
 }
 
 impl DelaunayTriangulation {
     fn new() -> Self {
         Self {
             triangles: Vec::new(),
+            edges: HashSet::new(),
         }
     }
 
     fn triangulate(&mut self, points: &Vec<Vec2>) {
+        self.triangles.clear();
+        self.edges.clear();
         let bounding_triangle = NavTriangle::from_coordinates([
             Vec2 {
                 x: -10000.0,
@@ -75,6 +79,23 @@ impl DelaunayTriangulation {
 
         self.triangles
             .retain(|t| !t.triangle_share_point(&bounding_triangle));
+
+        for triangle in &self.triangles {
+            self.edges.insert(Edge::new(triangle.coordinates[0], triangle.coordinates[1]));
+            self.edges.insert(Edge::new(triangle.coordinates[1], triangle.coordinates[2]));
+            self.edges.insert(Edge::new(triangle.coordinates[2], triangle.coordinates[0]));
+        }
+    }
+
+    pub fn check_edge(&self, edge: &Edge) -> Vec<Vec2> {
+        let mut vec = Vec::new();
+        for other in &self.edges {
+            match edge.get_intersection_point(&other) {
+                Some(point) => { vec.push(point); },
+                None => {}
+            }
+        }
+        vec
     }
 }
 
@@ -97,7 +118,8 @@ fn check_triangle_in_polygons(t: &NavTriangle, polygons: &Vec<Vec<Vec2>>) -> boo
 }
 
 impl Map {
-    pub fn from_npp(non_passable_polygons: Vec<Vec<Vec2>>) -> Self {
+    pub fn from_npp(mut non_passable_polygons: Vec<Vec<Vec2>>) -> Self {
+        let mut ref_polygons = &non_passable_polygons;
         let mut combined_points: Vec<Vec2> = non_passable_polygons
             .clone()
             .into_iter()
@@ -112,8 +134,32 @@ impl Map {
         });
         let mut triangulation = DelaunayTriangulation::new();
         triangulation.triangulate(&combined_points);
-        let mut triangles = triangulation.triangles;
-        triangles.retain(|t| !check_triangle_in_polygons(t, &non_passable_polygons));
+        let mut triangles = triangulation.triangles.clone();
+
+        let mut new_non_passable_polygons = non_passable_polygons.clone();
+
+        let mut flag = 2;
+        while flag > 0{
+            flag -= 1;
+            for (polygon_index, polygon) in ref_polygons.clone().into_iter().enumerate() {
+                for (i, point) in polygon.iter().enumerate() {
+                    let other_index = (i + 1) % polygon.len();
+                    let edge = Edge::new(*point, polygon[other_index]);
+                    let extra_points = triangulation.check_edge(&edge);
+                    for (offset, extra_point) in extra_points.iter().enumerate() {
+                        &new_non_passable_polygons[polygon_index].insert(other_index + offset, *extra_point);
+                        combined_points.push(*extra_point);
+                        print!("{extra_point:?}")
+                    }
+                }
+            }
+            println!();
+            ref_polygons = &new_non_passable_polygons;
+            triangulation.triangulate(&combined_points);
+        }
+        triangles = triangulation.triangles.clone();
+
+        //triangles.retain(|t| !check_triangle_in_polygons(t, &non_passable_polygons));
         Map {
             triangles,
             non_passable_polygons,
@@ -168,10 +214,9 @@ fn read_file(filename: &str) -> io::Result<Vec<Vec<Vec2>>> {
 
 #[macroquad::main("Navmesh Visualizer")]
 async fn main() {
-    let mut vec = read_file("test_input/test1.fnav").unwrap();
-    println!("{:?}", vec);
+    let mut vec = read_file("test_input/test2.fnav").unwrap();
     let mut mesh = Map::from_npp(vec);
-    println!("{:?}", mesh.triangles);
+    request_new_screen_size(1000.0, 1000.0); // horrible hardcoded stuff
     loop {
         clear_background(BLACK);
         draw_text("IT WORKS!", 20.0, 20.0, 30.0, WHITE);
