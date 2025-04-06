@@ -56,30 +56,31 @@ impl PartialEq for NavTriangle {
             || (a[0] == b[0] && a[1] == b[1] && a[2] == b[2])
     }
 }
-pub fn point_in_triangle(point: Vec2, nav_triangle: &NavTriangle) -> bool {
-    let v0 = nav_triangle.coordinates[1] - nav_triangle.coordinates[0];
-    let v1 = nav_triangle.coordinates[2] - nav_triangle.coordinates[0];
-    let v2 = point - nav_triangle.coordinates[0];
-
-    let d00 = v0.dot(v0);
-    let d01 = v0.dot(v1);
-    let d11 = v1.dot(v1);
-    let d20 = v2.dot(v0);
-    let d21 = v2.dot(v1);
-
-    let denom = d00 * d11 - d01 * d01;
-    if denom == 0.0 {
-        return false; // Degenerate triangle
-    }
-
-    let v = (d11 * d20 - d01 * d21) / denom;
-    let w = (d00 * d21 - d01 * d20) / denom;
-    let u = 1.0 - v - w;
-
-    u >= 0.0 && v >= 0.0 && w >= 0.0
-}
 
 impl NavTriangle {
+    pub fn point_in_triangle(&self, point: Vec2) -> bool {
+        let v0 = self.coordinates[1] - self.coordinates[0];
+        let v1 = self.coordinates[2] - self.coordinates[0];
+        let v2 = point - self.coordinates[0];
+
+        let d00 = v0.dot(v0);
+        let d01 = v0.dot(v1);
+        let d11 = v1.dot(v1);
+        let d20 = v2.dot(v0);
+        let d21 = v2.dot(v1);
+
+        let denom = d00 * d11 - d01 * d01;
+        if denom == 0.0 {
+            return false; // Degenerate triangle
+        }
+
+        let v = (d11 * d20 - d01 * d21) / denom;
+        let w = (d00 * d21 - d01 * d20) / denom;
+        let u = 1.0 - v - w;
+
+        u >= 0.0 && v >= 0.0 && w >= 0.0
+    }
+
     pub fn point_in_circumcircle(&self, point: Vec2) -> bool {
         let [a, b, c] = self.coordinates;
 
