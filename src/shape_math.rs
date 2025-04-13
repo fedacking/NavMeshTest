@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 use macroquad::math::Vec2;
 use std::hash::{Hash, Hasher};
+use std::ops::{Add, Div};
 use delaunator::Point;
-use line_intersection::LineInterval;
 use geo::{Intersects, Line, LineIntersection};
 use geo::Coord;
 use geo::line_intersection::line_intersection;
@@ -92,6 +92,13 @@ impl NavTriangle {
         } else {
             NavTriangle { coordinates }
         }
+    }
+
+    pub fn center(&self) -> geo::Point {
+        let v1 = geo::Point::new(self.coordinates[0].x, self.coordinates[0].y);
+        let v2 = geo::Point::new(self.coordinates[1].x, self.coordinates[1].y);
+        let v3 = geo::Point::new(self.coordinates[2].x, self.coordinates[2].y);
+        v1.add(v2).add(v3).div(3.0)
     }
 }
 
