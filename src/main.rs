@@ -6,24 +6,27 @@ use std::io;
 use std::io::BufRead;
 use std::path::Path;
 use macroquad::prelude::*;
-use geo::Point;
+use geo::{Coord, LineString, Point};
 
-fn read_file(filename: &str) -> io::Result<Vec<Vec<Point>>> {
+fn read_file(filename: &str) -> io::Result<(Vec<Point>, Vec<LineString>)> {
     let path = Path::new(filename);
     let file = File::open(&path)?;
     let reader = io::BufReader::new(file);
-    let mut vec = vec![];
 
     let mut lines = reader.lines().into_iter();
 
-    let first_line = lines.next().unwrap();
-    dbg!(&first_line);
+    let first_line = lines.next().unwrap()?;
+    let mut points: Vec<Point> = first_line.split("-").map(|v| {
+        let split = v.split(";").collect::<Vec<&str>>();
+        Point::new(split[0].parse().unwrap_or(0.0), split[1].parse().unwrap_or(0.0))
+    }).collect();
+
+    let mut polygons: Vec<LineString> = Vec::new();
 
     for line in lines {
         let line = line?; // Read the line
         let segments: Vec<&str> = line.split('-').collect();
-        let mut points: Vec<Point> = vec![];
-        dbg!(&line);
+        let mut poly_coordinates: Vec<Coord> = vec![];
 
         for segment in segments {
             let coordinates: Vec<&str> = segment.split(';').collect();
@@ -32,17 +35,23 @@ fn read_file(filename: &str) -> io::Result<Vec<Vec<Point>>> {
                     coordinates[0].parse().unwrap_or(0.0);
                 let y: f64 =
                     coordinates[1].parse().unwrap_or(0.0);
-                points.push(Point::new(x, y ));
+                let point = Point::new(x, y);
+                poly_coordinates.push(Coord::from(point));
+                points.push(point);
             }
         }
-        vec.push(points);
+
+        let mut ls = LineString(poly_coordinates);
+        ls.close();
+        polygons.push(ls);
     }
-    Ok(vec)
+    Ok((points, polygons))
 }
 
 #[macroquad::main("Navmesh Visualizer")]
 async fn main() {
-    let vec = read_file("test_input/test2.fnav").unwrap();
+    let file_data = read_file("test_input/test2.fnav").unwrap();
+    dbg!(file_data);
     request_new_screen_size(1000.0, 1000.0); // horrible hardcoded stuff
     loop {
         clear_background(BLACK);
