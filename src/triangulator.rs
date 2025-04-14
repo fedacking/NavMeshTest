@@ -131,7 +131,7 @@ pub fn from_npp(mut points: &mut Vec<geo::Point>, mut constraints: &mut Vec<Line
                                 points.push(intersection);
                                 dps.push(convert_to_p_del(&intersection));
                                 new_poly_coords.push(Coord::from(intersection));
-                                has_added = true;
+                                //has_added = true;
                             }
                         }
                         None => ()
